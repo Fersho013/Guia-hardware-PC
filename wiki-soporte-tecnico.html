@@ -1,0 +1,1197 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wiki Técnica · Soporte &amp; Taller</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+:root{
+  --bg:#12141A; --panel:#1B1E26; --panel-2:#21252F; --panel-3:#282D3A; --line:#2C303C;
+  --text:#E9E7E1; --text-dim:#9AA0AE; --text-dim2:#6C7280;
+  --amber:#FF8A2B; --amber-dim:#C9631B; --green:#6FCF97; --red:#E4575F; --blue:#5AA9E6;
+  --mono:'JetBrains Mono','Fira Code',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --disp:'Space Grotesk','Inter',sans-serif; --body:'Inter',sans-serif;
+
+  --c-asus:#4C9FE8; --c-msi:#FF5A5F; --c-giga:#FFA23C; --c-asrock:#F7C948;
+  --c-lenovo:#FF6B66; --c-hp:#4FC3E8; --c-dell:#4FA8E0; --c-acer:#9BD65C;
+}
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+*{box-sizing:border-box; margin:0; padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg); color:var(--text); font-family:var(--body); line-height:1.55; font-size:15px; overflow:hidden; height:100vh;}
+::selection{background:var(--amber); color:#14161C;}
+::-webkit-scrollbar{width:9px; height:9px;}
+::-webkit-scrollbar-track{background:var(--panel);}
+::-webkit-scrollbar-thumb{background:var(--line); border-radius:5px;}
+::-webkit-scrollbar-thumb:hover{background:var(--amber-dim);}
+button{font-family:inherit; cursor:pointer;}
+code{font-family:var(--mono);}
+a{color:var(--amber);}
+
+/* ===================== SHELL ===================== */
+.shell{display:flex; height:100vh; width:100%;}
+
+/* ---------- sidebar ---------- */
+nav.side{
+  width:252px; flex-shrink:0; background:var(--panel); border-right:1px solid var(--line);
+  display:flex; flex-direction:column; height:100vh; z-index:40; transition:transform .25s ease;
+}
+.brand{
+  font-family:var(--disp); font-weight:700; font-size:15px; letter-spacing:.02em;
+  padding:20px 20px 16px; border-bottom:1px solid var(--line); display:flex; align-items:center; gap:9px;
+}
+.brand .dot{width:9px; height:9px; border-radius:50%; background:var(--amber); box-shadow:0 0 8px var(--amber); flex-shrink:0;}
+.brand small{display:block; font-family:var(--mono); font-weight:400; color:var(--text-dim2); font-size:10.5px; letter-spacing:.05em; margin-top:2px;}
+
+.side-nav{flex:1; overflow-y:auto; padding:14px 10px;}
+.side-group-label{font-family:var(--mono); font-size:10.5px; color:var(--text-dim2); text-transform:uppercase; letter-spacing:.1em; padding:14px 10px 6px;}
+.side-nav button.nav-btn{
+  width:100%; display:flex; align-items:center; gap:11px; text-align:left; background:none; border:none;
+  color:var(--text-dim); font-size:13.6px; padding:10px 12px; border-radius:8px; margin-bottom:2px;
+  border-left:2px solid transparent; transition:.15s;
+}
+.side-nav button.nav-btn:hover{background:var(--panel-2); color:var(--text);}
+.side-nav button.nav-btn.active{background:var(--panel-2); color:var(--amber); border-left-color:var(--amber);}
+.side-nav button.nav-btn .ico{width:18px; text-align:center; flex-shrink:0; font-size:14.5px;}
+.side-nav button.nav-btn .count{margin-left:auto; font-family:var(--mono); font-size:10.5px; color:var(--text-dim2); background:var(--panel-3); padding:2px 6px; border-radius:20px;}
+
+.side-foot{padding:14px 20px; border-top:1px solid var(--line); font-family:var(--mono); font-size:10.5px; color:var(--text-dim2);}
+
+/* ---------- main / topbar ---------- */
+main.stage{flex:1; min-width:0; display:flex; flex-direction:column; height:100vh;}
+header.topbar{
+  background:var(--panel); border-bottom:1px solid var(--line); padding:14px 28px; flex-shrink:0;
+  display:flex; align-items:center; gap:16px;
+}
+.hamb{display:none; background:none; border:1px solid var(--line); color:var(--text); font-size:16px; border-radius:8px; padding:7px 10px;}
+.search-wrap{flex:1; max-width:640px; position:relative;}
+.search-wrap .ic{position:absolute; left:14px; top:50%; transform:translateY(-50%); color:var(--text-dim2); font-size:15px;}
+#globalSearch{
+  width:100%; background:#0C0D11; border:1px solid var(--line); color:var(--text); font-family:var(--body);
+  font-size:14px; padding:11px 14px 11px 40px; border-radius:9px; transition:.15s;
+}
+#globalSearch:focus{outline:none; border-color:var(--amber);}
+#globalSearch::placeholder{color:var(--text-dim2);}
+.clear-btn{position:absolute; right:10px; top:50%; transform:translateY(-50%); background:var(--panel-3); border:none; color:var(--text-dim); width:22px; height:22px; border-radius:50%; font-size:12px; display:none; align-items:center; justify-content:center;}
+.brand-chips{display:flex; gap:7px; flex-wrap:nowrap; overflow-x:auto; max-width:340px;}
+.bchip{
+  font-family:var(--mono); font-size:11px; padding:6px 11px; border-radius:20px; border:1px solid var(--line);
+  background:var(--panel-2); color:var(--text-dim); white-space:nowrap; flex-shrink:0; display:flex; align-items:center; gap:6px;
+}
+.bchip:hover{color:var(--text); border-color:var(--amber-dim);}
+.bchip .sw{width:7px; height:7px; border-radius:50%;}
+
+.content{flex:1; overflow-y:auto; padding:32px 40px 80px;}
+.view{max-width:1080px; margin:0 auto;}
+.view[hidden]{display:none;}
+
+.page-head{margin-bottom:26px;}
+.page-head .eyebrow{font-family:var(--mono); color:var(--amber); font-size:12px; letter-spacing:.12em; text-transform:uppercase; display:flex; align-items:center; gap:9px; margin-bottom:10px;}
+.page-head .eyebrow .bar{width:24px; height:1px; background:var(--amber);}
+.page-head h1{font-family:var(--disp); font-size:29px; font-weight:700; letter-spacing:-.01em;}
+.page-head p{color:var(--text-dim); margin-top:9px; max-width:66ch; font-size:14.5px;}
+
+/* ===================== COMPONENTS ===================== */
+.grid2{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+.grid3{display:grid; grid-template-columns:repeat(3,1fr); gap:16px;}
+.grid4{display:grid; grid-template-columns:repeat(4,1fr); gap:14px;}
+@media(max-width:900px){.grid2,.grid3,.grid4{grid-template-columns:1fr;}}
+
+.card{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:20px 22px; margin-bottom:16px;}
+.card h3{font-family:var(--disp); font-size:16px; margin-bottom:9px; display:flex; align-items:center; gap:8px;}
+.card h3::before{content:"▸"; color:var(--amber); font-size:12px;}
+.card p{font-size:13.8px; color:var(--text-dim); margin-bottom:7px;}
+.card p b, .card p strong{color:var(--text); font-weight:600;}
+.card .dim{color:var(--text-dim2); font-size:12.5px;}
+
+.cmd-row{display:flex; align-items:center; gap:8px; margin:8px 0;}
+.cmdline{
+  flex:1; font-family:var(--mono); background:#0C0D11; color:var(--green); border:1px solid var(--line);
+  padding:10px 13px; border-radius:7px; font-size:12.8px; white-space:pre-wrap; word-break:break-word; overflow-x:auto;
+}
+.copy-btn{
+  flex-shrink:0; background:var(--panel-2); border:1px solid var(--line); color:var(--text-dim);
+  width:36px; height:36px; border-radius:7px; font-size:14px; transition:.15s;
+}
+.copy-btn:hover{border-color:var(--amber); color:var(--amber);}
+.kbd{font-family:var(--mono); background:#0C0D11; color:var(--text); border:1px solid var(--line); padding:2px 7px; border-radius:5px; font-size:12.5px;}
+
+.warn-box{margin-top:14px; border-left:3px solid var(--red); background:rgba(228,87,95,.08); padding:12px 15px; border-radius:0 7px 7px 0; font-size:13px;}
+.warn-box b{color:#FF9A9E;}
+.ok-box{margin-top:10px; border-left:3px solid var(--green); background:rgba(111,207,151,.08); padding:12px 15px; border-radius:0 7px 7px 0; font-size:13px; display:none;}
+.ok-box.show{display:block;}
+.info-box{margin-top:10px; border-left:3px solid var(--blue); background:rgba(90,169,230,.08); padding:12px 15px; border-radius:0 7px 7px 0; font-size:13px;}
+
+.materials{display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:10px; margin-top:6px;}
+.mchip{background:#0C0D11; border:1px solid var(--line); border-radius:7px; padding:10px 13px; font-size:13px; display:flex; gap:8px; align-items:flex-start;}
+.mchip::before{content:"◆"; color:var(--amber); font-size:8px; margin-top:5px; flex-shrink:0;}
+
+/* stat cards (dashboard) */
+.stat{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:18px 20px;}
+.stat .n{font-family:var(--disp); font-size:30px; font-weight:700; color:var(--amber);}
+.stat .l{font-family:var(--mono); font-size:11px; color:var(--text-dim); text-transform:uppercase; letter-spacing:.06em; margin-top:4px;}
+.quick-nav{display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-top:22px;}
+@media(max-width:900px){.quick-nav{grid-template-columns:1fr 1fr;}}
+.qcard{
+  background:var(--panel); border:1px solid var(--line); border-left:3px solid var(--amber-dim);
+  border-radius:10px; padding:17px 18px; text-align:left; color:var(--text); transition:.15s;
+}
+.qcard:hover{border-color:var(--amber); transform:translateY(-1px);}
+.qcard .ico{font-size:21px; margin-bottom:8px;}
+.qcard h4{font-family:var(--disp); font-size:14.5px; margin-bottom:4px;}
+.qcard p{font-size:12px; color:var(--text-dim2);}
+.chart-box{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:22px; margin-top:22px;}
+.chart-box h3{font-family:var(--disp); font-size:15px; margin-bottom:4px;}
+.chart-box p.sub{color:var(--text-dim2); font-size:12.5px; margin-bottom:16px;}
+.chart-container{position:relative; width:100%; height:290px;}
+
+/* tables */
+.table-wrap{background:var(--panel); border:1px solid var(--line); border-radius:12px; overflow-x:auto;}
+table.ref{width:100%; border-collapse:collapse; font-size:13.3px;}
+table.ref th, table.ref td{padding:11px 14px; border-bottom:1px solid var(--line); text-align:left;}
+table.ref th{font-family:var(--mono); text-transform:uppercase; font-size:10.8px; color:var(--text-dim); letter-spacing:.06em; background:var(--panel-2);}
+table.ref tr:last-child td{border-bottom:none;}
+table.ref tr:hover td{background:var(--panel-2);}
+table.ref td:first-child{font-family:var(--disp); font-weight:700;}
+table.ref code{background:#0C0D11; border:1px solid var(--line); padding:3px 8px; border-radius:5px; font-size:12px;}
+
+/* brand tabs (pitidos) */
+.brand-tabs{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:18px;}
+.btab{
+  font-family:var(--mono); font-size:12.3px; padding:8px 15px; border-radius:20px; border:1px solid var(--line);
+  background:var(--panel); color:var(--text-dim); transition:.15s; display:flex; align-items:center; gap:7px;
+}
+.btab .sw{width:9px; height:9px; border-radius:50%;}
+.btab:hover{color:var(--text); border-color:var(--amber-dim);}
+.btab.active{color:#12141A; font-weight:600;}
+.bpanel{display:none; background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:22px 24px; border-left-width:4px;}
+.bpanel.show{display:block; animation:fade .2s ease;}
+@keyframes fade{from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:translateY(0);}}
+.bpanel h4{font-family:var(--disp); font-size:16px; margin-bottom:12px;}
+.beep{border-bottom:1px solid var(--line); padding:10px 0; font-size:13.5px; display:flex; gap:10px; align-items:flex-start;}
+.beep:last-child{border-bottom:none;}
+.beep b{color:var(--text); flex-shrink:0; min-width:150px;}
+.beep.normal{color:var(--green);}
+.beep-grid{margin-top:26px; display:grid; grid-template-columns:repeat(3,1fr); gap:12px;}
+@media(max-width:900px){.beep-grid{grid-template-columns:1fr 1fr;}}
+.beep-card{background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:13px 15px;}
+.beep-card .tag{font-family:var(--mono); font-size:10px; text-transform:uppercase; letter-spacing:.06em; color:var(--text-dim2);}
+.beep-card .snd{font-family:var(--mono); font-size:11.5px; margin:5px 0; padding:3px 7px; border-radius:5px; display:inline-block; border:1px solid var(--line);}
+.beep-card h5{font-family:var(--disp); font-size:13.5px; margin:5px 0 3px;}
+.beep-card p{font-size:11.8px; color:var(--text-dim2);}
+
+/* accordion (details) */
+details.acc{background:var(--panel); border:1px solid var(--line); border-radius:12px; margin-bottom:12px; overflow:hidden;}
+details.acc summary{
+  list-style:none; cursor:pointer; padding:16px 20px; display:flex; align-items:center; justify-content:space-between;
+  font-family:var(--disp); font-size:14.8px; font-weight:600;
+}
+details.acc summary::-webkit-details-marker{display:none;}
+details.acc summary .arrow{color:var(--text-dim2); transition:.2s;}
+details.acc[open] summary .arrow{transform:rotate(180deg); color:var(--amber);}
+details.acc summary::before{content:"⚙"; color:var(--amber); margin-right:10px;}
+.acc-body{padding:4px 20px 20px; border-top:1px solid var(--line);}
+.acc-body p{font-size:13.6px; color:var(--text-dim); margin:10px 0 6px;}
+
+/* image slots */
+.img-slot{
+  border:1.5px dashed var(--line); border-radius:10px; margin:14px 0; overflow:hidden; background:#0C0D11;
+  min-height:140px; display:flex; align-items:center; justify-content:center; position:relative;
+}
+.img-slot img{width:100%; display:none; max-height:420px; object-fit:contain;}
+.img-slot.filled{border-style:solid; border-color:var(--line);}
+.img-slot.filled img{display:block;}
+.img-slot.filled .img-slot-ph{display:none;}
+.img-slot-ph{padding:22px; text-align:center; color:var(--text-dim2);}
+.img-slot-ph .ic{font-size:22px; margin-bottom:6px; opacity:.6;}
+.img-slot-ph .desc{font-size:12.5px; color:var(--text-dim); max-width:46ch; margin:0 auto 6px;}
+.img-slot-ph code{font-size:10.8px; background:var(--panel-2); padding:3px 8px; border-radius:5px;}
+.img-row{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+@media(max-width:800px){.img-row{grid-template-columns:1fr;}}
+
+/* RAM decoder */
+.decoder{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:24px; margin-bottom:18px;}
+.decoder input{
+  width:100%; background:#0C0D11; border:1px solid var(--line); color:var(--amber); font-family:var(--mono);
+  font-size:19px; padding:14px 16px; border-radius:8px; letter-spacing:.03em; text-transform:uppercase;
+}
+.decoder input:focus{outline:none; border-color:var(--amber);}
+.decoder-out{margin-top:15px; display:flex; flex-wrap:wrap; gap:9px;}
+.chip{font-family:var(--mono); font-size:12px; background:#0C0D11; border:1px solid var(--line); border-radius:6px; padding:8px 12px; color:var(--text-dim);}
+.chip b{color:var(--amber); display:block; font-size:10.5px; text-transform:uppercase; margin-bottom:3px; letter-spacing:.05em;}
+
+/* calculator */
+.calc-box{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:26px;}
+.calc-formula{font-family:var(--mono); text-align:center; background:#0C0D11; border:1px solid var(--line); border-radius:8px; padding:16px; font-size:14.5px; color:var(--amber); margin-bottom:22px;}
+.calc-inputs{display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:20px;}
+@media(max-width:700px){.calc-inputs{grid-template-columns:1fr;}}
+.field label{display:block; font-family:var(--mono); font-size:10.8px; color:var(--text-dim); text-transform:uppercase; letter-spacing:.05em; margin-bottom:6px;}
+.field input{width:100%; background:#0C0D11; border:1px solid var(--line); color:var(--text); font-family:var(--mono); font-size:14.5px; padding:10px 12px; border-radius:6px;}
+.field input:focus{outline:none; border-color:var(--amber);}
+.calc-result{display:flex; align-items:baseline; justify-content:space-between; gap:20px; flex-wrap:wrap; background:linear-gradient(135deg,rgba(255,138,43,.12),transparent); border:1px solid var(--amber-dim); border-radius:8px; padding:18px 20px;}
+.calc-result .lbl{font-family:var(--mono); font-size:11.5px; color:var(--text-dim); text-transform:uppercase; letter-spacing:.07em;}
+.calc-result .val{font-family:var(--disp); font-size:31px; font-weight:700; color:var(--amber);}
+.calc-note{font-size:12.3px; color:var(--text-dim2); margin-top:13px;}
+
+/* progress / steps */
+.progress-wrap{margin-bottom:20px;}
+.progress-bar{height:6px; background:var(--panel-2); border-radius:4px; overflow:hidden; border:1px solid var(--line);}
+.progress-fill{height:100%; width:0%; background:linear-gradient(90deg,var(--amber-dim),var(--amber)); transition:.3s;}
+.progress-label{font-family:var(--mono); font-size:11.5px; color:var(--text-dim); margin-top:7px;}
+.steps{counter-reset:step;}
+.step{position:relative; padding:20px 22px 20px 62px; margin-bottom:13px; background:var(--panel); border:1px solid var(--line); border-radius:12px;}
+.step::before{counter-increment:step; content:counter(step); position:absolute; left:18px; top:20px; width:28px; height:28px; border-radius:50%; background:var(--panel-2); border:1px solid var(--amber-dim); color:var(--amber); display:flex; align-items:center; justify-content:center; font-family:var(--mono); font-weight:700; font-size:12.5px;}
+.step.done{border-color:var(--green);}
+.step.done::before{background:var(--green); border-color:var(--green); color:#0C0D11;}
+.step h4{font-family:var(--disp); font-size:15px; margin-bottom:7px; display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;}
+.step h4 button{font-family:var(--mono); font-size:10.5px; background:none; border:1px solid var(--line); color:var(--text-dim); padding:5px 11px; border-radius:20px; flex-shrink:0;}
+.step h4 button:hover{border-color:var(--amber); color:var(--amber);}
+.step p{color:var(--text-dim); font-size:13.4px; margin:6px 0;}
+
+/* search view / dossier */
+.dossier{border:1px solid var(--line); border-left-width:4px; border-radius:12px; padding:22px 24px; margin-bottom:22px; background:var(--panel);}
+.dossier-head{font-family:var(--disp); font-size:17px; font-weight:700; display:flex; align-items:center; gap:9px; margin-bottom:16px;}
+.dossier-dot{width:10px; height:10px; border-radius:50%;}
+.dossier-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:14px;}
+@media(max-width:900px){.dossier-grid{grid-template-columns:1fr;}}
+.dcard{background:var(--panel-2); border:1px solid var(--line); border-radius:9px; padding:14px 16px;}
+.dcard h4{font-family:var(--disp); font-size:12.8px; margin-bottom:9px; color:var(--text-dim);}
+.dcard p{font-size:12.8px; color:var(--text-dim); margin-bottom:5px;}
+.dcard .beep-mini{font-size:12px; color:var(--text-dim); border-bottom:1px solid var(--line); padding:6px 0;}
+.dcard .beep-mini:last-child{border-bottom:none;}
+.dcard .beep-mini b{color:var(--text);}
+.jump-btn{margin-top:16px; background:var(--panel-2); border:1px solid var(--amber-dim); color:var(--amber); font-family:var(--mono); font-size:12px; padding:9px 16px; border-radius:8px;}
+.jump-btn:hover{background:var(--amber); color:#14161C;}
+
+.result-group{margin-bottom:22px;}
+.result-group h3{font-family:var(--mono); font-size:11.5px; text-transform:uppercase; letter-spacing:.08em; color:var(--text-dim2); margin-bottom:10px; display:flex; align-items:center; gap:8px;}
+.result-group h3 .n{background:var(--panel-2); border:1px solid var(--line); border-radius:20px; padding:1px 8px; font-size:10.5px;}
+.result-card{background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:14px 16px; margin-bottom:9px; cursor:pointer; transition:.15s;}
+.result-card:hover{border-color:var(--amber-dim);}
+.result-card h4{font-family:var(--disp); font-size:14px; margin-bottom:4px;}
+.result-card p{font-size:12.6px; color:var(--text-dim2);}
+.no-results{color:var(--text-dim2); text-align:center; padding:50px 20px; font-size:14px;}
+.brand-quick{display:flex; flex-wrap:wrap; gap:8px; margin:10px 0 24px;}
+
+/* toast */
+#toast{
+  visibility:hidden; min-width:220px; background:var(--green); color:#0C0D11; font-weight:600;
+  text-align:center; border-radius:8px; padding:12px 18px; position:fixed; z-index:100; left:50%; bottom:30px;
+  transform:translateX(-50%); font-size:13.5px; box-shadow:0 8px 24px rgba(0,0,0,.4);
+}
+#toast.show{visibility:visible; animation:fadein .3s, fadeout .4s 2.2s;}
+@keyframes fadeout{from{opacity:1;} to{opacity:0; bottom:10px;}}
+
+/* mobile */
+.overlay{display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:35;}
+.overlay.show{display:block;}
+@media(max-width:880px){
+  nav.side{position:fixed; top:0; left:0; transform:translateX(-100%);}
+  nav.side.open{transform:translateX(0);}
+  .hamb{display:block;}
+  .brand-chips{display:none;}
+  .content{padding:22px 18px 70px;}
+  .grid2, .dossier-grid, .img-row{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+  <!-- ============ SIDEBAR ============ -->
+  <nav class="side" id="sideNav">
+    <div class="brand">
+      <span class="dot"></span>
+      <div>WIKI TÉCNICA<small>Soporte &amp; Taller · Edición Maestra</small></div>
+    </div>
+    <div class="side-nav" id="sideNavList">
+      <!-- generado por JS -->
+    </div>
+    <div class="side-foot">v3.0 · unificada · offline-ready</div>
+  </nav>
+  <div class="overlay" id="overlay" onclick="closeMobile()"></div>
+
+  <!-- ============ MAIN ============ -->
+  <main class="stage">
+    <header class="topbar">
+      <button class="hamb" onclick="openMobile()">☰</button>
+      <div class="search-wrap">
+        <span class="ic">🔍</span>
+        <input type="text" id="globalSearch" placeholder="Buscar por fabricante, comando, error, código de pitido...">
+        <button class="clear-btn" id="clearSearch" onclick="clearSearch()">✕</button>
+      </div>
+      <div class="brand-chips" id="brandChips"></div>
+    </header>
+
+    <div class="content" id="contentArea">
+
+      <!-- ============ VIEW: INICIO ============ -->
+      <section class="view" id="view-inicio">
+        <div class="page-head">
+          <div class="eyebrow"><span class="bar"></span>Panel general</div>
+          <h1>Base de conocimiento del taller</h1>
+          <p>Todo el manual de soporte técnico —comandos, accesos a BIOS, códigos de pitidos, memorias RAM, calculadoras y guía de clonado— reunido en un solo lugar, organizado por secciones. Usa la barra de búsqueda para encontrar todo lo relacionado a una marca o error en un solo vistazo.</p>
+        </div>
+
+        <div class="grid4" id="statCards"></div>
+
+        <div class="quick-nav" id="quickNav"></div>
+
+        <div class="chart-box">
+          <h3>Distribución de códigos de pitido por componente</h3>
+          <p class="sub">Frecuencia de tipos de fallo documentados por fabricante (ASUS, Gigabyte, MSI, ASRock).</p>
+          <div class="chart-container"><canvas id="statsChart"></canvas></div>
+        </div>
+      </section>
+
+      <!-- ============ VIEW: COMANDOS ============ -->
+      <section class="view" id="view-comandos" hidden>
+        <div class="page-head">
+          <div class="eyebrow"><span class="bar"></span>01 · Terminal</div>
+          <h1>Repositorio de comandos</h1>
+          <p>Instrucciones ejecutables para CMD, PowerShell y accesos directos de Windows. Pulsa 📋 junto a cualquier comando para copiarlo al portapapeles.</p>
+        </div>
+        <div class="grid2" id="comandosGrid"></div>
+      </section>
+
+      <!-- ============ VIEW: BIOS ============ -->
+      <section class="view" id="view-bios" hidden>
+        <div class="page-head">
+          <div class="eyebrow"><span class="bar"></span>02 · Firmware</div>
+          <h1>Matriz de acceso a BIOS / Boot Menu</h1>
+          <p>Referencia rápida por fabricante para entrar al sistema básico de entrada/salida y al gestor de arranque.</p>
+        </div>
+        <div class="table-wrap">
+          <table class="ref">
+            <thead><tr><th>Fabricante</th><th>Tecla BIOS</th><th>Boot Menu</th><th>Extras / Flash</th></tr></thead>
+            <tbody id="biosTableBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ============ VIEW: PITIDOS ============ -->
+      <section class="view" id="view-pitidos" hidden>
+        <div class="page-head">
+          <div class="eyebrow"><span class="bar"></span>03 · Diagnóstico sonoro</div>
+          <h1>Códigos de pitido (Beep Codes)</h1>
+          <p>Selecciona un fabricante para ver el significado de sus patrones de sonido durante el POST.</p>
+          <div class="info-box" style="max-width:64ch">Para que la motherboard emita sonidos es necesario tener conectado físicamente un <b>Speaker</b> a la placa base.</div>
+        </div>
+
+        <div class="brand-tabs" id="beepTabs"></div>
+        <div id="beepPanels"></div>
+
+        <h3 style="font-family:var(--disp); font-size:16px; margin:30px 0 4px;">Referencia completa (todos los fabricantes)</h3>
+        <p style="color:var(--text-dim2); font-size:12.8px; margin-bottom:6px;">Vista de tarjetas para comparar rápidamente todos los códigos documentados.</p>
+        <div class="beep-grid" id="allBeepsGrid"></div>
+      </section>
+
+      <!-- ============ VIEW: RAM ============ -->
+      <section class="view" id="view-ram" hidden>
+        <div class="page-head">
+          <div class="eyebrow"><span class="bar"></span>04 · Memorias RAM</div>
+          <h1>Decodificador de códigos Kingston</h1>
+          <p>Escribe un código de parte de Kingston para desglosar su significado, o consulta la referencia completa abajo.</p>
+        </div>
+
+        <div class="decoder">
+          <input type="text" id="ramInput" placeholder="Ej. KVR32N22D8/16" autocomplete="off">
+          <div class="decoder-out" id="ramOut"></div>
+        </div>
+
+        <div class="grid2">
+          <div class="card">
+            <h3>1. El prefijo — ¿para qué equipo es?</h3>
+            <p><code>KVR</code> — Kingston ValueRAM: línea estándar JEDEC, para PCs armadas o actualizaciones genéricas.</p>
+            <p><code>KCP</code> — Kingston Custom Process: compatibilidad garantizada con marcas específicas (Dell, HP, Lenovo). Pruebas más rigurosas.</p>
+            <p><code>KTH / KTD / KTA / KTL</code> — la "K" es Kingston y la tercera letra es la marca: <b>H</b>(HP), <b>D</b>(Dell), <b>A</b>(Apple), <b>L</b>(Lenovo).</p>
+            <p><code>KF</code> — Kingston FURY: línea gamer / alto rendimiento.</p>
+          </div>
+          <div class="card">
+            <h3>2. Generación y velocidad</h3>
+            <p><b>Generación (DDR):</b> un 3, 4 o 5 al inicio del código indica DDR3, DDR4 o DDR5.</p>
+            <p><b>Velocidad (MT/s o MHz)</b> — primeros dos dígitos de la frecuencia:</p>
+            <p><code>16</code>=1600MHz &nbsp;<code>24</code>=2400MHz &nbsp;<code>26</code>=2666MHz &nbsp;<code>32</code>=3200MHz &nbsp;<code>48/52/60</code>=4800/5200/6000MHz (típico DDR5)</p>
+          </div>
+          <div class="card">
+            <h3>3. Formato y características físicas</h3>
+            <p><code>S</code> (SO-DIMM) — módulo corto, para laptop o mini PCs.</p>
+            <p><code>N</code> (Non-ECC / UDIMM) — sin letra especial, DIMM larga para desktop normal.</p>
+            <p><code>E</code> (ECC) — corrección de errores, estaciones de trabajo.</p>
+            <p><code>R</code> (Registered) — para servidores, no sirven en PCs normales.</p>
+            <p><code>L</code> (Low Voltage) — menor consumo, común en DDR3L.</p>
+          </div>
+          <div class="card">
+            <h3>4. Latencia y construcción</h3>
+            <p><b>Latencia CAS (CL):</b> números como 16, 18 o 22 — entre más bajo, más rápido responde la memoria.</p>
+            <p><b>Ranks:</b> <code>S</code> (Single Rank) chips en un solo bloque; <code>D</code> (Dual Rank) organizados en dos bloques, un poco más rápida pero más compleja.</p>
+            <p><b>Densidad:</b> 8 o 16 — indica chips de 8 o 16 bits.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>5. Capacidad final</h3>
+          <p>Siempre después de una diagonal <code>/</code> o guion <code>-</code>: <code>/8</code>=8GB &nbsp;<code>/16</code>=16GB &nbsp;<code>/32</code>=32GB.</p>
+          <p><code>Kit of 2 (K2)</code> — ej. <code>KF432C16BBK2/16</code> significa un kit de dos memorias de 8GB c/u para sumar 16GB.</p>
+        </div>
+
+        <div class="table-wrap" style="margin-top:16px;">
+          <table class="ref">
+            <thead><tr><th>Código</th><th>Formato</th><th>Generación</th><th>Uso</th></tr></thead>
+            <tbody>
+              <tr><td><code>KCP432SD8/32</code></td><td>SO-DIMM (S)</td><td>DDR4 (32=3200MHz)</td><td>Laptop Pro (alta compatibilidad)</td></tr>
+              <tr><td><code>KVR32N22D8/16</code></td><td>DIMM (N)</td><td>DDR4 (32=3200MHz)</td><td>Desktop genérico</td></tr>
+              <tr><td><code>KTH-PL548S4-32G</code></td><td>RDIMM (PL)</td><td>DDR5 (5)</td><td>Servidor HP (específica)</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ============ VIEW: IMC ============ -->
+      <section class="view" id="view-imc" hidden>
+        <div class="page-head">
+          <div class="eyebrow"><span class="bar"></span>05 · Calculadora</div>
+          <h1>IMC y ancho de banda de memoria</h1>
+          <p>El <b>IMC</b> (Integrated Memory Controller / Controlador de Memoria Integrado) determina la capacidad del procesador para soportar memorias de cierta frecuencia.</p>
+        </div>
+
+        <div class="calc-box">
+          <div class="calc-formula">Velocidad Real (GB/s) = (MHz × 8 × N° de canales) ÷ 1000</div>
+          <div class="calc-inputs">
+            <div class="field"><label>MHz que soporta el procesador</label><input type="number" id="imcMhz" placeholder="Ej. 3200" min="0"></div>
+            <div class="field"><label>Canales de memoria</label><input type="number" id="imcChan" placeholder="Ej. 2" min="0"></div>
+            <div class="field"><label>MHz real de la RAM instalada</label><input type="number" id="imcRam" placeholder="Opcional · Ej. 3600" min="0"></div>
+          </div>
+          <div class="calc-result">
+            <div><div class="lbl">Velocidad real</div><div class="val" id="imcResult">0.00 GB/s</div></div>
+          </div>
+          <div id="imcWarnLow" class="warn-box" style="display:none"><b>Incompatibilidad de frecuencia:</b> la RAM es inferior a la soportada por el IMC. Se genera un cuello de botella persistente en tareas de alto ancho de banda (renderizado, IA, compilación).</div>
+          <div id="imcWarnHigh" class="ok-box" style="border-left-color:#F7A600; background:rgba(247,166,0,.08);"><b style="color:#F7A600">Saturación del IMC:</b> usar memorias con frecuencias superiores al límite oficial (Overclock/XMP) puede exceder la capacidad del IMC, resultando en inestabilidad térmica o errores de paridad.</div>
+          <div id="imcOk" class="ok-box"><b>Frecuencia compatible</b> con el IMC del procesador.</div>
+          <p class="calc-note">MHz = frecuencia soportada por el procesador · ×8 = 8 bits · Canales = canales de memoria del procesador · ÷1000 = conversión a GB/s. Con perfiles recomendados se puede activar EXPO o XMP para soportar más MHz mediante overclock.</p>
+        </div>
+      </section>
+
+      <!-- ============ VIEW: HARDWARE ============ -->
+      <section class="view" id="view-hardware" hidden>
+        <div class="page-head">
+          <div class="eyebrow"><span class="bar"></span>06 · Procedimientos</div>
+          <h1>Hardware &amp; configuración de BIOS</h1>
+          <p>Guías paso a paso para reseteos de emergencia, cambio de gráfica principal y drivers de motherboard. Despliega cada panel para ver el detalle.</p>
+        </div>
+        <div id="hardwareAccordion"></div>
+      </section>
+
+      <!-- ============ VIEW: CLONADO ============ -->
+      <section class="view" id="view-clonado" hidden>
+        <div class="page-head">
+          <div class="eyebrow"><span class="bar"></span>07 · Guía interactiva</div>
+          <h1>Clonado de imágenes (Macrium Reflect)</h1>
+          <p>Procedimiento completo para generar y propagar una imagen ISO maestra usando Hiren's Boot / Ventoy y Macrium Reflect. Marca cada paso como completado a tu ritmo.</p>
+        </div>
+
+        <div class="card">
+          <h3>Materiales necesarios</h3>
+          <div class="materials">
+            <div class="mchip">Disco USB con Hiren's Boot (preferible dentro de Ventoy)</div>
+            <div class="mchip">1 equipo al cual se le realizará la ISO (sin ser custom)</div>
+            <div class="mchip">Disco de destino (reemplazará al de fábrica)</div>
+            <div class="mchip">Adaptador de SSD M.2 (preferible, mayor velocidad de clonado)</div>
+          </div>
+        </div>
+
+        <div class="table-wrap" style="margin-bottom:16px;">
+          <table class="ref">
+            <thead><tr><th>Marca</th><th>Tecla de Boot Menu</th></tr></thead>
+            <tbody id="isoBootTable"></tbody>
+          </table>
+        </div>
+
+        <div class="progress-wrap">
+          <div class="progress-bar"><div class="progress-fill" id="progFill"></div></div>
+          <div class="progress-label" id="progLabel">0 / 9 pasos completados</div>
+        </div>
+
+        <div class="steps" id="stepsWrap"></div>
+      </section>
+
+      <!-- ============ VIEW: DATOS ============ -->
+      <section class="view" id="view-datos" hidden>
+        <div class="page-head">
+          <div class="eyebrow"><span class="bar"></span>08 · Referencia</div>
+          <h1>Datos generales y misceláneos</h1>
+          <p>Notas sueltas que no encajan en las demás categorías pero se usan con frecuencia en el taller.</p>
+        </div>
+        <div class="grid2" id="datosGrid"></div>
+      </section>
+
+      <!-- ============ VIEW: SEARCH ============ -->
+      <section class="view" id="view-search" hidden>
+        <div class="page-head">
+          <div class="eyebrow"><span class="bar"></span>Búsqueda global</div>
+          <h1 id="searchTitle">Resultados</h1>
+          <p>Coincidencias encontradas en todas las secciones de la wiki para tu búsqueda.</p>
+        </div>
+        <div id="searchResults"></div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<div id="toast">Copiado al portapapeles</div>
+
+<script>
+/* =========================================================================
+   GUÍA RÁPIDA PARA AMPLIAR ESTA WIKI (léelo si vas a añadir contenido)
+   -------------------------------------------------------------------------
+   1. Todo el contenido vive en el objeto `db` de más abajo. Cada arreglo
+      corresponde a una sección del menú lateral.
+   2. Para añadir una IMAGEN a cualquier tarjeta o paso, usa la función
+      imgSlot('archivo.png', 'Descripción de lo que debe mostrar la imagen').
+      Luego solo coloca el archivo con ese nombre dentro de una carpeta
+      "img/" junto a este HTML — la imagen aparecerá sola, sin tocar código.
+   3. Para añadir un nuevo FABRICANTE: agrega su entrada en `brandsMeta`,
+      sus códigos de pitido en `db.pitidos` y su fila en `db.biosKeys`.
+      El buscador y la "ficha de fabricante" lo detectan automáticamente.
+   4. Para añadir un nuevo COMANDO, PROCEDIMIENTO o PASO de clonado, copia
+      un objeto existente del arreglo correspondiente y edítalo.
+   ========================================================================= */
+
+// --- IMAGE SLOT HELPER ---
+function imgSlot(file, desc, opts){
+  opts = opts || {};
+  return `<div class="img-slot">
+    <img src="img/${file}" alt="${desc}" onload="this.parentElement.classList.add('filled')" onerror="this.style.display='none'">
+    <div class="img-slot-ph">
+      <div class="ic">🖼️</div>
+      <div class="desc">${desc}</div>
+      <code>img/${file}</code>
+    </div>
+  </div>`;
+}
+
+// --- BRAND METADATA (para BIOS/boot, gráfica y ficha de búsqueda) ---
+const brandsMeta = {
+  asus:     { label:'ASUS',     color:'var(--c-asus)',    bios:'SUPR',            boot:'F8',  extra:'BIOS Flash: F2',
+              graphics:'Advanced (F7) → System Agent (SA) Configuration → Graphics Configuration → Primary Display: <b>PCIE</b> (dedicada) o <b>CPU Graphics</b> (integrada).',
+              driver:'Instalar mediante <a href="https://driverhub.asus.com/en" target="_blank">ASUS DriverHub</a> o desde la página oficial del fabricante. Tras descargarlo, actualizar la página para ver el listado de drivers.' },
+  msi:      { label:'MSI',      color:'var(--c-msi)',     bios:'SUPR',            boot:'F11', extra:'BIOS Flash: botón físico en el panel trasero (no requiere RAM instalada)',
+              graphics:'Settings → Advanced → Integrated Graphics Configuration → Initiate Graphic Adapter: <b>PEG</b> (dedicada) o <b>IGFX</b> (integrada).', driver:'' },
+  gigabyte: { label:'Gigabyte', color:'var(--c-giga)',    bios:'SUPR / F2 / F10', boot:'F12', extra:'Tecla Fin (End) accede directo al menú QFlash. Para actualizar la BIOS se necesita un USB en formato FAT; si el equipo cuenta con un procesador funcional para arrancar, también se puede entrar a BIOS → QFlash (F8) y proceder con la instalación.',
+              graphics:'Chipset (o Settings → Chipset) → Integrated Graphics: <b>Disable</b> para forzar el uso de la tarjeta dedicada.', driver:'' },
+  asrock:   { label:'ASRock',   color:'var(--c-asrock)',  bios:'—',               boot:'—',   extra:'Tecla BIOS/Boot no documentada aún — agrégala en db.biosKeys.',
+              graphics:'Procedimiento de gráfica no documentado aún.', driver:'' },
+  lenovo:   { label:'Lenovo',   color:'var(--c-lenovo)',  bios:'F1',              boot:'F12', extra:'Algunos modelos usan el botón físico Novo en el chasis.',
+              graphics:'Procedimiento de gráfica no documentado aún.', driver:'' },
+  hp:       { label:'HP',       color:'var(--c-hp)',      bios:'F10 / F6',        boot:'F9',  extra:'Pruebas UEFI: ESC o F2.',
+              graphics:'Procedimiento de gráfica no documentado aún.', driver:'' },
+  dell:     { label:'Dell',     color:'var(--c-dell)',    bios:'F2',              boot:'F12', extra:'D + Encendido: test de pantalla. Fn + Encendido (3s): Dell SupportAssist dentro del Boot Menu.',
+              graphics:'Procedimiento de gráfica no documentado aún.', driver:'' },
+  acer:     { label:'Acer',     color:'var(--c-acer)',    bios:'F2',              boot:'F12', extra:'Ctrl+S para opciones avanzadas en algunos modelos.',
+              graphics:'Procedimiento de gráfica no documentado aún.', driver:'' },
+};
+
+// --- DATABASE ---
+const db = {
+
+  comandos: [
+    { id:'c1', titulo:'Reporte de estado de batería (laptop)', cmd:'powercfg /batteryreport output "C:\\estado-bateria.html"',
+      desc:'Genera un informe detallado de salud de la batería en la raíz del usuario. Buscar en Este equipo → Usuarios → (usuario actual) → estado-bateria.html y abrirlo con el navegador.' },
+    { id:'c2', titulo:'Restauración del sistema (Sysprep)', cmd:'sysprep',
+      desc:'Ejecutar desde Ejecutar (Win+R). Abre la aplicación sysprep para restaurar el sistema. Desactivar BitLocker antes de usarlo.' },
+    { id:'c3', titulo:'Restauración de disco (Diskpart)', cmd:'diskpart\nlist disk\nselect disk (numero)\nclean',
+      desc:'Abrir como administrador. Limpieza profunda de particiones — "clean" borra todo el disco seleccionado.' },
+    { id:'c4', titulo:'Límite real de memoria de la PC', cmd:'wmic memphysical get maxcapacity',
+      desc:'El resultado se divide entre 1,048,576 para obtener el valor en GB soportado por la placa.' },
+    { id:'c5', titulo:'Inicializar disco (Windows recién instalado)', cmd:'SHIFT + F10',
+      desc:'Abre CMD, luego Win+E para el explorador → Este equipo → Propiedades → Volúmenes y discos → inicializar el disco nuevo.' },
+    { id:'c6', titulo:'Saltar paso de WiFi (OOBE)', cmd:'oobe\\bypassnro',
+      desc:'Desde CMD (Shift+F10) durante la instalación de Windows 11 sin conexión a internet.' },
+    { id:'c7', titulo:'Obtener número de serie (BIOS)', cmd:'wmic path win32_bios Get serialnumber',
+      desc:'Extrae el Serial Number directamente desde el firmware del equipo.' },
+    { id:'c8', titulo:'Reiniciar drivers de video', cmd:'Win + Ctrl + Shift + B',
+      desc:'Refresca el controlador gráfico en caso de parpadeo, pantalla negra o congelamiento. Funciona ya dentro de Windows.' },
+  ],
+
+  biosKeys: [
+    { slug:'asus' }, { slug:'msi' }, { slug:'gigabyte' }, { slug:'lenovo' },
+    { slug:'hp' }, { slug:'dell' }, { slug:'acer' },
+  ],
+
+  pitidos: {
+    asus: [
+      { sonido:'Sin pitido (LED Power encendido)', error:'CPU o RAM mal instalados', diag:'La CPU o la memoria RAM no están correctamente instaladas en sus sockets.', normal:false },
+      { sonido:'1 corto', error:'Arranque Normal', diag:'El POST se completó correctamente. Sistema OK.', normal:true },
+      { sonido:'1 largo + 2 cortos', error:'Fallo de RAM', diag:'Memoria RAM no detectada o mal instalada. Reasienta el módulo o limpia contactos.', normal:false },
+      { sonido:'1 largo + 3 cortos', error:'Fallo de Gráfica (VGA)', diag:'Tarjeta de video no detectada o fallando. Verifica cables PCIe.', normal:false },
+      { sonido:'1 largo + 4 cortos', error:'Fallo de CPU', diag:'Ventilador de CPU no detectado o protección por sobre-temperatura / sobre-voltaje.', normal:false },
+    ],
+    gigabyte: [
+      { sonido:'1 corto', error:'Arranque Normal', diag:'POST superado sin errores de hardware.', normal:true },
+      { sonido:'2 cortos', error:'Error CMOS', diag:'Posible fallo en la pila de la placa. Un Reset CMOS suele solucionarlo; si no, cambiar la pila.', normal:false },
+      { sonido:'1 largo + 1 corto', error:'Error de RAM', diag:'Fallo general en la memoria RAM. Comprueba instalación y funcionamiento.', normal:false },
+      { sonido:'1 largo + 2 cortos', error:'Fallo de Gráfica', diag:'Anomalía en la tarjeta de video dedicada o integrada. Verifica cables de alimentación.', normal:false },
+      { sonido:'1 largo + 3 cortos', error:'Error AGP', diag:'Solo en placas antiguas con zócalos AGP.', normal:false },
+      { sonido:'1 largo + 9 cortos', error:'Fallo de Módulo RAM', diag:'Uno de los módulos instalados está defectuoso.', normal:false },
+      { sonido:'1 largo constante', error:'RAM mal instalada', diag:'La memoria RAM está mal asentada físicamente.', normal:false },
+      { sonido:'Cortos constantes', error:'Fallo de Fuente de Alimentación', diag:'Verifica conexión ATX 24 pines y EPS 8 pines a la placa.', normal:false },
+    ],
+    msi: [
+      { sonido:'1 corto', error:'Arranque Normal', diag:'El sistema arrancó satisfactoriamente.', normal:true },
+      { sonido:'2 cortos', error:'Problema CMOS', diag:'Hacer un Clear CMOS para restablecer la configuración.', normal:false },
+      { sonido:'1 largo + 1 corto', error:'Error de DRAM', diag:'Fallo en la memoria RAM instalada.', normal:false },
+      { sonido:'1 largo + 2 cortos', error:'Error de Monitor/Gráfica', diag:'Problema con la tarjeta gráfica o su conexión al monitor.', normal:false },
+      { sonido:'1 largo + 3 cortos', error:'Teclado no detectado', diag:'Error en el teclado o no se detecta ningún teclado conectado.', normal:false },
+      { sonido:'1 largo + 9 cortos', error:'Error ROM BIOS', diag:'Hacer un Clear CMOS para intentar solucionarlo.', normal:false },
+      { sonido:'Cortos constantes', error:'Error de RAM', diag:'Fallo persistente en la memoria RAM.', normal:false },
+      { sonido:'Cortos muy rápidos', error:'Problemas de Alimentación', diag:'Cortocircuito o fallo de voltaje desde la fuente de poder.', normal:false },
+      { sonido:'Largos y cortos seguidos constantes', error:'Problemas CPU Críticos', diag:'Sobre-temperatura extrema o sobre-voltaje en el procesador.', normal:false },
+    ],
+    asrock: [
+      { sonido:'Cortos constantes', error:'Error de Refresco RAM', diag:'Fallo en el ciclo de refresco de la memoria.', normal:false },
+      { sonido:'2 cortos', error:'Error de Paridad RAM', diag:'Fallo de paridad en la memoria instalada.', normal:false },
+      { sonido:'3 cortos', error:'Error Lectura/Escritura RAM', diag:'Fallo en la prueba de lectura/escritura de la RAM.', normal:false },
+      { sonido:'4 cortos', error:'Error Reloj de Sistema', diag:'Fallo en el temporizador de la placa base (cambiar pila CMOS).', normal:false },
+      { sonido:'5 cortos', error:'Error de Procesador', diag:'CPU defectuosa o mal asentada.', normal:false },
+      { sonido:'6 cortos', error:'Error Controlador de Teclado', diag:'Fallo de periférico I/O o teclado no detectado.', normal:false },
+      { sonido:'7 cortos', error:'Error General', diag:'Normalmente asociado al procesador o a la RAM.', normal:false },
+      { sonido:'8 cortos', error:'Error Gráfica (VRAM)', diag:'Fallo en memoria de video o tarjeta no instalada correctamente.', normal:false },
+      { sonido:'9 cortos', error:'Error ROM (BIOS)', diag:'Corrupción de BIOS. Un Clear CMOS generalmente no lo soluciona.', normal:false },
+      { sonido:'10 cortos', error:'Error de Lectura/Escritura en ROM', diag:'Fallo en la lectura o escritura de la memoria ROM. Un Clear CMOS podría arreglarlo.', normal:false },
+      { sonido:'11 cortos', error:'Error de Caché', diag:'Fallo en la comprobación de la memoria caché del procesador.', normal:false },
+    ],
+  },
+
+  hardware: [
+    { id:'h1', titulo:'Reparación / Reseteo de BIOS (Clear CMOS)', tags:'clear cmos jbat1 pila reset bios reparación',
+      body: `<p>Con el equipo apagado y desconectado de la corriente:</p>
+        <div class="materials">
+          <div class="mchip">1. Retirar todos los componentes sin estar conectados a la corriente</div>
+          <div class="mchip">2. Retirar la pila plana de la placa base (Pila MB CR2032)</div>
+          <div class="mchip">3. Localizar los pines JBAT1 / CLRTC en la placa base</div>
+          <div class="mchip">4. Puentear los pines con un objeto metálico conductor de 5 a 10 segundos</div>
+          <div class="mchip">5. Retirar el puente, volver a colocar la pila y encender el equipo</div>
+        </div>
+        ${imgSlot('placa-base-cmos-zoom.png','Ubicación de la pila MB y del jumper CMOS en la placa base')}
+        <p><b>JBAT1: Clear CMOS (Reset BIOS) Jumper.</b> Existe memoria CMOS alimentada externamente por una pila en la motherboard que guarda la configuración del sistema. Para limpiarla, cambia la posición del jumper de <code>Keep Data</code> (por defecto) a <code>Clear CMOS / Reset BIOS</code>.</p>
+        ${imgSlot('diagrama-jbat1-jumper.png','Diagrama de configuración del jumper JBAT1 (Keep Data vs Clear CMOS)')}` },
+
+    { id:'h2', titulo:'Reparación física / retiro sistemático de componentes', tags:'redundancia cíclica no da imagen reparación física',
+      body: `<p>Para casos donde el equipo no da imagen o presenta errores de redundancia cíclica en BIOS:</p>
+        <div class="materials">
+          <div class="mchip">1. Retirar Memoria RAM y Tarjeta de Video</div>
+          <div class="mchip">2. Desconectar almacenamiento (SSD/HDD)</div>
+          <div class="mchip">3. Retirar la pila de la placa base (KTS Lithium CR2032)</div>
+          <div class="mchip">4. Presionar el botón de encendido por 30 segundos para descargar condensadores</div>
+        </div>
+        ${imgSlot('retiro-componentes.png','Fotografía del proceso de retiro sistemático de componentes')}` },
+
+    { id:'h3', titulo:'Cambiar la gráfica principal (dedicada / integrada) por fabricante', tags:'gráfica dedicada integrada pcie igfx peg cambiar',
+      body: `<div class="grid2" style="margin-top:8px;">
+        <div class="card"><h3 style="color:var(--c-asus)">ASUS</h3><p>${brandsMeta.asus.graphics}</p></div>
+        <div class="card"><h3 style="color:var(--c-msi)">MSI</h3><p>${brandsMeta.msi.graphics}</p></div>
+        <div class="card"><h3 style="color:var(--c-giga)">Gigabyte</h3><p>${brandsMeta.gigabyte.graphics}</p></div>
+      </div>
+      ${imgSlot('graphics-config-bios.png','Captura de la interfaz de BIOS mostrando la opción de configuración de gráficos')}` },
+
+    { id:'h4', titulo:'Drivers de motherboard ASUS (equipos de escritorio)', tags:'drivers asus driverhub motherboard',
+      body: `<p>${brandsMeta.asus.driver}</p>` },
+  ],
+
+  datos: [
+    { titulo:'BitLocker en Windows 11 Home', tags:'bitlocker windows 11 home cifrado',
+      body:'Windows 11 Home no incluye BitLocker como tal, pero puede activar el "Cifrado de dispositivo" automáticamente al vincular una cuenta Microsoft. Si no aparece BitLocker en la búsqueda del sistema, significa que la edición instalada no lo contiene. Guarda siempre la clave de recuperación de 48 dígitos.' },
+    { titulo:'Disyuntor de salida UPS APC (Circuit Breaker)', tags:'ups apc disyuntor circuit breaker sobrecarga',
+      body:'Una sobrecarga o pico de voltaje activa el disyuntor y las salidas quedan desactivadas para proteger los equipos conectados. Solución: desconectar los equipos, presionar firmemente el botón trasero "Circuit Breaker" hasta que quede sumido, y reconectar los equipos progresivamente.',
+      link:{ url:'https://foro.tvc.mx/docs/diagrama-de-instalaci%C3%B3n-cerradura-ml200-ml300-direcci%C3%B3n-de-manija', label:'Ver diagrama de referencia →' } },
+  ],
+
+  isoSteps: [
+    { titulo:'Conectar el USB con Hiren\'s y acceder al Boot Menu', tags:'hirens ventoy secure boot macrium boot menu',
+      body:`<p>Iniciar el equipo y acceder al boot menu correspondiente (ver tabla arriba). En la mayoría de equipos se bloqueará el USB por el Secure Boot; hay que seleccionar la key de <b>Ventoy</b> ("Enroll This Key") para poder acceder sin desactivar el Secure Boot. Luego entrar directamente a <b>Hiren's Boot</b> y, dentro, buscar <b>Macrium Reflect</b>.</p>
+      ${imgSlot('macrium-hirens.png',"Icono o acceso a Macrium Reflect dentro del escritorio de Hiren's Boot")}` },
+    { titulo:'Solución si no se detecta el disco (Modo AHCI)', tags:'ahci raid vmd nvme laptop ensambles disco no detectado',
+      body:`<p>Si al iniciar Macrium Reflect no se visualiza el disco interno del equipo (laptop o ensamble), sigue estos pasos:</p>
+      <div class="grid3">
+        <div class="card" style="border-left:3px solid var(--red)"><h3 style="color:#FF9A9E">Problema</h3><p>El controlador está en modo RAID o Intel VMD (común en procesadores nuevos).</p></div>
+        <div class="card" style="border-left:3px solid var(--green)"><h3 style="color:var(--green)">Solución</h3><p>Entra a la BIOS y cambia el modo de almacenamiento a <b>AHCI</b>.</p></div>
+        <div class="card" style="border-left:3px solid var(--blue)"><h3 style="color:var(--blue)">Efecto</h3><p>Permite que Hiren's reconozca discos NVMe de forma nativa, sin cargar drivers externos.</p></div>
+      </div>
+      ${imgSlot('ahci-bios.png','Opción de cambio de RAID/VMD a AHCI en la interfaz de la BIOS')}` },
+    { titulo:'Crear el backup / imagen máster del disco original', tags:'macrium backup image this disk mrimg sku',
+      body:`<p>Dentro de Macrium, ir a la opción <b>Backup</b>. Seleccionar el disco a clonar (en el ejemplo, disco 1) y todas sus particiones de fábrica. Usar la opción <b>"Image this disk…"</b>; se pedirá dónde alojar la ISO — alojarla en la carpeta <code>ISO CUSTOM</code>.</p>
+      <div class="img-row">${imgSlot('macrium-backup-tab.png','Menú superior de Macrium Reflect con la pestaña "Backup" e "image this disk" seleccionada')}${imgSlot('macrium-save-folder.png','Opción de carpeta de guardado del ISO en la interfaz de Macrium')}</div>
+      <p>La ISO se guardará con formato <code>.mrimg</code>. Nombrar el archivo con el SKU del producto (ej. ISO del SKU <code>542096</code>).</p>` },
+    { titulo:'Instalar el disco de mayor capacidad y abrir Restore', tags:'macrium restore browse image file m.2 usb',
+      body:`<p>Instalar el disco de mayor capacidad dentro del equipo (de preferencia con adaptador M.2 → USB-C o USB 3.0 para mayor velocidad de clonado).</p>
+      <div class="img-row">${imgSlot('macrium-restore-tab.png','Menú superior de Macrium Reflect con la pestaña "Restore" y "Browse for an image file..." seleccionada')}${imgSlot('macrium-select-image.png','Ventana "Select an image file" en la interfaz de Macrium')}</div>
+      <p>Seleccionar el ISO necesario para clonar (ej. <code>ISO 542096-00-00.mrimg</code>).</p>` },
+    { titulo:'Verificar particiones y seleccionar "Restore Image"', tags:'restore image select disk verificar particiones',
+      body:`<p>Verificar que las particiones del ISO son correctas y seleccionar <b>"Restore Image"</b>.</p>
+      <div class="img-row">${imgSlot('macrium-restore-image-menu.png','Menú de Macrium Reflect con la pestaña "Restore image"')}${imgSlot('macrium-select-disk.png','Opción "Select a disk to restore" en la interfaz de Macrium')}</div>
+      <p>Dentro de "Restore image", seleccionar el disco vacío donde se clonará el ISO original del fabricante para crear el ISO maestro (ej. 1TB) que se clonará masivamente.</p>` },
+    { titulo:'Mover las particiones al disco vacío', tags:'copy selected partitions no asignado advertencia',
+      body:`<div class="warn-box"><b>Advertencia crítica:</b> NO usar el botón "Copy selected partitions" de forma directa si el disco de destino es más grande que el origen — esto bloqueará el espacio sobrante como "No asignado" y no se podrá expandir después fácilmente.</div>
+      <p style="margin-top:10px">Si se agrega todo de golpe, quedará más de la mitad del espacio vacío sin posibilidad de ampliar ni usarlo.</p>` },
+    { titulo:'Redimensionar la partición de Windows', tags:'restored partition properties free space windows-ssd',
+      body:`<p>Para evitar el problema anterior: colocar primero las <b>2 particiones del principio</b>, y justo antes de arrastrar la última partición (<b>WINRE DRV</b>), seleccionar la partición <b>3-Windows-SSD</b> y hacer clic en <b>"Restored Partition Properties"</b>.</p>
+      ${imgSlot('restored-partition-properties.png','Botón "Restored Partition Properties" resaltado debajo del mapa de particiones')}
+      <p>En el apartado <b>"Free Space"</b>, ajustar el valor manualmente para dejar exactamente el espacio que requiere la partición de recuperación (ej. 1.95 GB o 2000 MB según el origen) — automáticamente se llenará "Partition Size".</p>` },
+    { titulo:'Agregar la última partición y finalizar', tags:'winre drv next full disk restore imagen máster',
+      body:`<p>Con ese espacio libre, agregar la última partición (ej. de 1.95 GB), dando como resultado el ISO completo con todo el espacio del disco usado. Dar clic en <b>"Next"</b> para finalizar el clonado del ISO del fabricante dentro del disco de mayor capacidad (ej. 1TB).</p>
+      <p>Con el disco de 1TB ya clonado, hay que sacarle una ISO a ese mismo disco usando el sistema del fabricante. Esa nueva ISO máster se puede propagar a los demás discos sin necesidad de repetir la expansión de espacio en cada uno — solamente copiando el ISO y dándole a "Siguiente".</p>
+      <div class="ok-box show"><b>Nota de producción:</b> para los equipos restantes NO es necesario repetir el ajuste de particiones. Al usar la Imagen Máster (ej. 1TB) sobre discos del mismo tamaño, el volcado es directo (Full Disk Restore).</div>` },
+    { titulo:'Validar el entorno de recuperación (WinRE)', tags:'reagentc info enabled validación cmd administrador',
+      body:`<p>Una vez finalizado el primer clonado del lote, es <b>obligatorio</b> validar que la partición de recuperación haya quedado bien vinculada tras el redimensionado. Abrir una consola CMD como administrador y ejecutar:</p>
+      <div class="cmd-row"><code class="cmdline">reagentc /info</code><button class="copy-btn" title="Copiar">📋</button></div>
+      <p>Verificar que el estado indique <code style="color:var(--green)">"Enabled"</code>.</p>
+      ${imgSlot('reagentc-info.png',"Captura de la consola de Windows mostrando el comando 'reagentc /info' con el estado 'Enabled'")}` },
+  ],
+};
+
+// --- NAV DEFINITION ---
+const NAV_GROUPS = [
+  { label:'General', items:[ { id:'inicio', ico:'🏠', label:'Inicio' } ] },
+  { label:'Referencia rápida', items:[
+      { id:'comandos', ico:'💻', label:'Comandos CMD', count:()=>db.comandos.length },
+      { id:'bios',     ico:'🔑', label:'BIOS / Boot Menu', count:()=>db.biosKeys.length },
+      { id:'pitidos',  ico:'🔊', label:'Códigos de Pitido', count:()=>Object.values(db.pitidos).reduce((a,b)=>a+b.length,0) },
+  ]},
+  { label:'Memoria & rendimiento', items:[
+      { id:'ram', ico:'🧠', label:'Memorias RAM' },
+      { id:'imc', ico:'📐', label:'Calculadora IMC' },
+  ]},
+  { label:'Procedimientos', items:[
+      { id:'hardware', ico:'🔧', label:'Hardware & BIOS', count:()=>db.hardware.length },
+      { id:'clonado',  ico:'💽', label:'Guía de Clonado', count:()=>db.isoSteps.length },
+      { id:'datos',    ico:'📎', label:'Datos Generales', count:()=>db.datos.length },
+  ]},
+];
+
+let currentView = 'inicio';
+let myChart = null;
+
+// ===================== RENDER: SIDEBAR =====================
+function renderSidebar(){
+  const list = document.getElementById('sideNavList');
+  list.innerHTML = '';
+  NAV_GROUPS.forEach(group=>{
+    list.innerHTML += `<div class="side-group-label">${group.label}</div>`;
+    group.items.forEach(item=>{
+      const countHtml = item.count ? `<span class="count">${item.count()}</span>` : '';
+      list.innerHTML += `<button class="nav-btn" data-view="${item.id}"><span class="ico">${item.ico}</span>${item.label}${countHtml}</button>`;
+    });
+  });
+  list.querySelectorAll('.nav-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=> navTo(btn.dataset.view));
+  });
+}
+
+// ===================== RENDER: BRAND CHIPS =====================
+function renderBrandChips(){
+  const wrap = document.getElementById('brandChips');
+  wrap.innerHTML = Object.keys(brandsMeta).map(slug=>{
+    const b = brandsMeta[slug];
+    return `<button class="bchip" data-brand="${slug}"><span class="sw" style="background:${b.color}"></span>${b.label}</button>`;
+  }).join('');
+  wrap.querySelectorAll('.bchip').forEach(chip=>{
+    chip.addEventListener('click', ()=>{
+      const q = brandsMeta[chip.dataset.brand].label;
+      document.getElementById('globalSearch').value = q;
+      handleSearch(q);
+    });
+  });
+}
+
+// ===================== NAVIGATION =====================
+function navTo(view){
+  currentView = view;
+  document.querySelectorAll('.view').forEach(v=> v.hidden = true);
+  document.getElementById('view-'+view).hidden = false;
+  document.querySelectorAll('.nav-btn').forEach(b=> b.classList.toggle('active', b.dataset.view === view));
+  document.getElementById('contentArea').scrollTop = 0;
+  closeMobile();
+  if(view === 'inicio' && !myChart) initChart();
+}
+
+function closeMobile(){
+  document.getElementById('sideNav').classList.remove('open');
+  document.getElementById('overlay').classList.remove('show');
+}
+function openMobile(){
+  document.getElementById('sideNav').classList.add('open');
+  document.getElementById('overlay').classList.add('show');
+}
+
+// ===================== RENDER: DASHBOARD =====================
+function renderDashboard(){
+  const totalBeeps = Object.values(db.pitidos).reduce((a,b)=>a+b.length,0);
+  const stats = [
+    { n: db.comandos.length, l:'Comandos' },
+    { n: db.biosKeys.length, l:'Fabricantes BIOS' },
+    { n: totalBeeps, l:'Códigos de Pitido' },
+    { n: db.hardware.length + db.isoSteps.length, l:'Procedimientos' },
+  ];
+  document.getElementById('statCards').innerHTML = stats.map(s=>`<div class="stat"><div class="n">${s.n}</div><div class="l">${s.l}</div></div>`).join('');
+
+  const quick = [
+    { view:'comandos', ico:'💻', h:'Comandos rápidos', p:'Scripts para batería, discos, red y drivers listos para copiar.' },
+    { view:'bios', ico:'🔑', h:'Accesos BIOS', p:'Tabla comparativa de teclas para ASUS, HP, Dell, Lenovo y más.' },
+    { view:'pitidos', ico:'🔊', h:'Auditoría de pitidos', p:'Identifica fallas de hardware según el patrón acústico.' },
+    { view:'ram', ico:'🧠', h:'Decodificador RAM', p:'Traduce cualquier código de parte Kingston al instante.' },
+    { view:'clonado', ico:'💽', h:'Guía de clonado', p:'Procedimiento interactivo con checklist para propagar imágenes.' },
+    { view:'hardware', ico:'🔧', h:'Hardware & BIOS', p:'Clear CMOS, cambio de gráfica principal y drivers.' },
+  ];
+  document.getElementById('quickNav').innerHTML = quick.map(q=>`<button class="qcard" data-view="${q.view}"><div class="ico">${q.ico}</div><h4>${q.h}</h4><p>${q.p}</p></button>`).join('');
+  document.querySelectorAll('.qcard').forEach(c=> c.addEventListener('click', ()=> navTo(c.dataset.view)));
+}
+
+function initChart(){
+  const ctx = document.getElementById('statsChart').getContext('2d');
+  let ram=0, gpu=0, cpu=0, power=0, other=0;
+  Object.values(db.pitidos).forEach(arr=>{
+    arr.forEach(p=>{
+      if(p.normal) return;
+      const e = p.error.toLowerCase();
+      if(e.includes('ram') || e.includes('memoria') || e.includes('caché')) ram++;
+      else if(e.includes('gráfica') || e.includes('vga') || e.includes('vram') || e.includes('monitor')) gpu++;
+      else if(e.includes('procesador') || e.includes('cpu')) cpu++;
+      else if(e.includes('alimentación')) power++;
+      else other++;
+    });
+  });
+  myChart = new Chart(ctx, {
+    type:'bar',
+    data:{
+      labels:['Memoria RAM','Gráfica (GPU)','Procesador (CPU)','Fuente/Poder','Otros (ROM/CMOS)'],
+      datasets:[{ data:[ram,gpu,cpu,power,other], backgroundColor:['#4C9FE8','#FF5A5F','#6FCF97','#FFA23C','#9AA0AE'], borderRadius:5, borderWidth:0 }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false}, tooltip:{ backgroundColor:'#0C0D11', borderColor:'#2C303C', borderWidth:1, padding:11, cornerRadius:7, titleFont:{family:'Inter'}, bodyFont:{family:'Inter'} } },
+      scales:{
+        y:{ beginAtZero:true, ticks:{ color:'#9AA0AE', precision:0 }, grid:{ color:'#2C303C' } },
+        x:{ ticks:{ color:'#9AA0AE' }, grid:{ display:false } }
+      }
+    }
+  });
+}
+
+// ===================== RENDER: COMANDOS =====================
+function renderComandos(){
+  document.getElementById('comandosGrid').innerHTML = db.comandos.map(c=>`
+    <div class="card">
+      <h3>${c.titulo}</h3>
+      <p>${c.desc}</p>
+      <div class="cmd-row"><code class="cmdline">${escapeHtml(c.cmd)}</code><button class="copy-btn" title="Copiar comando">📋</button></div>
+    </div>`).join('');
+}
+
+// ===================== RENDER: BIOS TABLE =====================
+function renderBios(){
+  document.getElementById('biosTableBody').innerHTML = db.biosKeys.map(row=>{
+    const b = brandsMeta[row.slug];
+    return `<tr><td style="color:${b.color}">${b.label}</td><td><code>${b.bios}</code></td><td><code>${b.boot}</code></td><td>${b.extra}</td></tr>`;
+  }).join('');
+}
+
+// ===================== RENDER: PITIDOS =====================
+function renderPitidos(){
+  const tabs = document.getElementById('beepTabs');
+  const panels = document.getElementById('beepPanels');
+  const slugs = Object.keys(db.pitidos);
+  tabs.innerHTML = slugs.map(s=>{
+    const b = brandsMeta[s];
+    return `<button class="btab" data-target="beep-${s}" style="border-color:${b.color}"><span class="sw" style="background:${b.color}"></span>${b.label}</button>`;
+  }).join('');
+  panels.innerHTML = slugs.map(s=>{
+    const b = brandsMeta[s];
+    const rows = db.pitidos[s].map(p=>`<div class="beep ${p.normal?'normal':''}"><b>${p.sonido}:</b><span>${p.error} — ${p.diag}</span></div>`).join('');
+    return `<div class="bpanel" id="beep-${s}" style="border-left-color:${b.color}"><h4 style="color:${b.color}">${b.label} — Códigos de pitido</h4>${rows}</div>`;
+  }).join('');
+
+  tabs.querySelectorAll('.btab').forEach(tab=>{
+    tab.addEventListener('click', ()=> activateBeepTab(tab.dataset.target));
+  });
+  activateBeepTab('beep-'+slugs[0]);
+
+  // full reference grid
+  const grid = document.getElementById('allBeepsGrid');
+  let cards = '';
+  slugs.forEach(s=>{
+    const b = brandsMeta[s];
+    db.pitidos[s].forEach(p=>{
+      cards += `<div class="beep-card" style="border-left:3px solid ${b.color}">
+        <span class="tag" style="color:${b.color}">${b.label}</span>
+        <div class="snd" style="border-color:${b.color}; color:${b.color}">${p.sonido}</div>
+        <h5>${p.error}</h5><p>${p.diag}</p>
+      </div>`;
+    });
+  });
+  grid.innerHTML = cards;
+}
+function activateBeepTab(targetId){
+  document.querySelectorAll('#beepTabs .btab').forEach(t=>{
+    const active = t.dataset.target === targetId;
+    t.classList.toggle('active', active);
+    t.style.background = active ? t.style.borderColor : 'var(--panel)';
+    t.style.color = active ? '#12141A' : 'var(--text-dim)';
+  });
+  document.querySelectorAll('.bpanel').forEach(p=> p.classList.toggle('show', p.id === targetId));
+}
+
+// ===================== RENDER: HARDWARE ACCORDION =====================
+function renderHardware(){
+  document.getElementById('hardwareAccordion').innerHTML = db.hardware.map(h=>`
+    <details class="acc">
+      <summary>${h.titulo}<span class="arrow">▼</span></summary>
+      <div class="acc-body">${h.body}</div>
+    </details>`).join('');
+}
+
+// ===================== RENDER: DATOS =====================
+function renderDatos(){
+  document.getElementById('datosGrid').innerHTML = db.datos.map(d=>`
+    <div class="card"><h3>${d.titulo}</h3><p>${d.body}</p>${d.link?`<p><a href="${d.link.url}" target="_blank">${d.link.label}</a></p>`:''}</div>`).join('');
+}
+
+// ===================== RENDER: CLONADO =====================
+function renderClonado(){
+  const laptopBrands = ['dell','lenovo','asus','hp','msi'];
+  document.getElementById('isoBootTable').innerHTML = laptopBrands.map(s=>{
+    const b = brandsMeta[s];
+    return `<tr><td style="color:${b.color}">${b.label}</td><td><code>${b.boot}</code></td></tr>`;
+  }).join('');
+
+  document.getElementById('stepsWrap').innerHTML = db.isoSteps.map((s,i)=>`
+    <div class="step" data-step="${i+1}">
+      <h4>${s.titulo}<button onclick="toggleStep(this)">Marcar hecho</button></h4>
+      ${s.body}
+    </div>`).join('');
+  updateProgress();
+}
+function toggleStep(btn){
+  const step = btn.closest('.step');
+  step.classList.toggle('done');
+  btn.textContent = step.classList.contains('done') ? 'Deshacer' : 'Marcar hecho';
+  updateProgress();
+}
+function updateProgress(){
+  const all = document.querySelectorAll('#stepsWrap .step');
+  const done = document.querySelectorAll('#stepsWrap .step.done');
+  const pct = all.length ? (done.length / all.length) * 100 : 0;
+  document.getElementById('progFill').style.width = pct + '%';
+  document.getElementById('progLabel').textContent = `${done.length} / ${all.length} pasos completados`;
+}
+
+// ===================== UTIL: escape + copy =====================
+function escapeHtml(str){
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+document.addEventListener('click', function(e){
+  const btn = e.target.closest('.copy-btn');
+  if(!btn) return;
+  const row = btn.closest('.cmd-row');
+  const codeEl = row ? row.querySelector('code') : btn.previousElementSibling;
+  if(codeEl){
+    const text = codeEl.textContent;
+    navigator.clipboard.writeText(text).then(showToast).catch(()=>{
+      const ta = document.createElement('textarea');
+      ta.value = text; document.body.appendChild(ta); ta.select();
+      try{ document.execCommand('copy'); showToast(); }catch(err){}
+      document.body.removeChild(ta);
+    });
+  }
+});
+function showToast(){
+  const t = document.getElementById('toast');
+  t.className = 'show';
+  setTimeout(()=> t.className = t.className.replace('show',''), 2600);
+}
+
+// ===================== RAM DECODER =====================
+function decodeRam(code){
+  code = code.trim().toUpperCase();
+  if(!code) return [];
+  const out = [];
+  if(code.startsWith('KVR')) out.push(['Prefijo','KVR — ValueRAM: línea estándar JEDEC, PCs armadas / actualizaciones genéricas']);
+  else if(code.startsWith('KCP')) out.push(['Prefijo','KCP — Custom Process: compatibilidad garantizada con marca específica (Dell/HP/Lenovo)']);
+  else if(code.startsWith('KF')) out.push(['Prefijo','KF — Kingston FURY: línea gamer / alto rendimiento']);
+  else if(/^KT[HDAL]/.test(code)){
+    const m = {H:'HP',D:'Dell',A:'Apple',L:'Lenovo'}[code[2]];
+    out.push(['Prefijo', 'KT'+code[2]+' — Kingston para '+m]);
+  }
+  const genMatch = code.match(/K(?:VR|CP|F|T[HDAL])(\d)/);
+  if(genMatch) out.push(['Generación','DDR'+genMatch[1]]);
+  const speedMap = {'16':'1600 MHz','24':'2400 MHz','26':'2666 MHz','32':'3200 MHz','48':'4800 MHz','52':'5200 MHz','60':'6000 MHz'};
+  for(const k in speedMap){ if(code.includes(k)){ out.push(['Velocidad (aprox.)', speedMap[k]]); break; } }
+  if(code.includes('S') && /[0-9]S[0-9D]/.test(code)) out.push(['Formato','SO-DIMM (S) — Laptop / Mini PC']);
+  if(/RDIMM|R\d/.test(code)) out.push(['Formato','Registered (R) — Servidor']);
+  if(code.includes('E') && /\dE\d/.test(code)) out.push(['ECC','Corrección de errores — estación de trabajo']);
+  if(code.includes('L') && /\dL\d/.test(code)) out.push(['Voltaje','Low Voltage (L) — menor consumo']);
+  if(/D8|D16/.test(code)) out.push(['Rank','Dual Rank (D)']);
+  else if(/S8|S16/.test(code)) out.push(['Rank','Single Rank (S)']);
+  const capMatch = code.match(/[\/-](\d{1,3})(G)?\b/g);
+  if(capMatch){
+    const last = capMatch[capMatch.length-1].replace(/[\/\-G]/g,'');
+    out.push(['Capacidad', last+' GB']);
+  }
+  if(code.includes('K2')) out.push(['Kit', 'Kit of 2 (K2) — dos módulos iguales']);
+  return out;
+}
+function initRamDecoder(){
+  const ramIn = document.getElementById('ramInput');
+  const ramOut = document.getElementById('ramOut');
+  ramIn.addEventListener('input', ()=>{
+    const res = decodeRam(ramIn.value);
+    ramOut.innerHTML = res.length ? res.map(([k,v])=>`<div class="chip"><b>${k}</b>${v}</div>`).join('') : '<div class="chip" style="color:var(--text-dim2)">Escribe un código válido, ej. KVR32N22D8/16</div>';
+  });
+  ramIn.dispatchEvent(new Event('input'));
+}
+
+// ===================== IMC CALCULATOR =====================
+function initImcCalc(){
+  const mhzEl = document.getElementById('imcMhz');
+  const chanEl = document.getElementById('imcChan');
+  const ramMhzEl = document.getElementById('imcRam');
+  const resultEl = document.getElementById('imcResult');
+  const warnLow = document.getElementById('imcWarnLow');
+  const warnHigh = document.getElementById('imcWarnHigh');
+  const okBox = document.getElementById('imcOk');
+  function calc(){
+    const mhz = parseFloat(mhzEl.value) || 0;
+    const chan = parseFloat(chanEl.value) || 0;
+    const ramMhz = parseFloat(ramMhzEl.value) || 0;
+    const speed = (mhz * 8 * chan) / 1000;
+    resultEl.textContent = speed.toFixed(2) + ' GB/s';
+    warnLow.style.display = 'none'; warnHigh.style.display = 'none'; okBox.classList.remove('show');
+    if(mhz > 0 && ramMhz > 0){
+      if(ramMhz < mhz) warnLow.style.display = 'block';
+      else if(ramMhz > mhz) warnHigh.style.display = 'block';
+      else okBox.classList.add('show');
+    }
+  }
+  [mhzEl, chanEl, ramMhzEl].forEach(el=> el.addEventListener('input', calc));
+  calc();
+}
+
+// ===================== SEARCH ENGINE =====================
+let searchIndex = [];
+function buildSearchIndex(){
+  searchIndex = [];
+  db.comandos.forEach(c=> searchIndex.push({ section:'comandos', label:'Comandos', title:c.titulo, snippet:c.desc, text:(c.titulo+' '+c.desc+' '+c.cmd).toLowerCase() }));
+  db.biosKeys.forEach(row=>{
+    const b = brandsMeta[row.slug];
+    searchIndex.push({ section:'bios', label:'BIOS / Boot Menu', title:b.label+' — Acceso a BIOS', snippet:`BIOS: ${b.bios} · Boot: ${b.boot} · ${b.extra}`, text:(b.label+' '+b.bios+' '+b.boot+' '+b.extra).toLowerCase() });
+  });
+  Object.keys(db.pitidos).forEach(s=>{
+    const b = brandsMeta[s];
+    db.pitidos[s].forEach(p=> searchIndex.push({ section:'pitidos', label:'Códigos de Pitido', title:`${b.label} · ${p.sonido}`, snippet:`${p.error} — ${p.diag}`, text:(b.label+' '+p.sonido+' '+p.error+' '+p.diag).toLowerCase(), brand:s }));
+  });
+  db.hardware.forEach(h=> searchIndex.push({ section:'hardware', label:'Hardware & BIOS', title:h.titulo, snippet:h.body.replace(/<[^>]+>/g,' ').slice(0,140)+'…', text:(h.titulo+' '+h.tags+' '+h.body.replace(/<[^>]+>/g,' ')).toLowerCase() }));
+  db.isoSteps.forEach((s,i)=> searchIndex.push({ section:'clonado', label:'Guía de Clonado', title:`Paso ${i+1}: ${s.titulo}`, snippet:s.body.replace(/<[^>]+>/g,' ').slice(0,140)+'…', text:(s.titulo+' '+s.tags+' '+s.body.replace(/<[^>]+>/g,' ')).toLowerCase() }));
+  db.datos.forEach(d=> searchIndex.push({ section:'datos', label:'Datos Generales', title:d.titulo, snippet:d.body.slice(0,140)+'…', text:(d.titulo+' '+d.tags+' '+d.body).toLowerCase() }));
+  searchIndex.push({ section:'ram', label:'Memorias RAM', title:'Decodificador de códigos Kingston', snippet:'KVR, KCP, KF, KTH/KTD/KTA/KTL, generación, velocidad, formato, capacidad.', text:'ram kingston kvr kcp kf kth ktd kta ktl decodificador memoria sodimm dimm ecc' });
+  searchIndex.push({ section:'imc', label:'Calculadora IMC', title:'IMC y ancho de banda de memoria', snippet:'Calcula la velocidad real en GB/s según MHz y canales del procesador.', text:'imc ancho de banda memoria mhz canales calculadora velocidad gbs' });
+}
+
+function matchBrand(query){
+  const q = query.toLowerCase().trim();
+  if(!q) return null;
+  for(const slug in brandsMeta){
+    if(slug === q || brandsMeta[slug].label.toLowerCase() === q || slug.includes(q) || q.includes(slug)) return slug;
+  }
+  return null;
+}
+
+function renderBrandDossier(slug){
+  const b = brandsMeta[slug];
+  const beeps = db.pitidos[slug] || [];
+  return `<div class="dossier" style="border-left-color:${b.color}">
+    <div class="dossier-head" style="color:${b.color}"><span class="dossier-dot" style="background:${b.color}"></span>Ficha de fabricante — ${b.label}</div>
+    <div class="dossier-grid">
+      <div class="dcard"><h4>Acceso a BIOS / Boot</h4><p><b>Tecla BIOS:</b> <code>${b.bios}</code></p><p><b>Boot Menu:</b> <code>${b.boot}</code></p><p style="color:var(--text-dim2)">${b.extra}</p></div>
+      <div class="dcard"><h4>Alternar gráfica dedicada / integrada</h4><p>${b.graphics}</p>${b.driver?`<p style="margin-top:8px">${b.driver}</p>`:''}</div>
+      <div class="dcard">
+        <h4>Códigos de pitido (POST)</h4>
+        ${beeps.length ? beeps.slice(0,6).map(p=>`<div class="beep-mini"><b>${p.sonido}:</b> ${p.error}</div>`).join('') : '<p style="color:var(--text-dim2); font-size:12px;">Sin códigos documentados aún.</p>'}
+      </div>
+    </div>
+    <button class="jump-btn" data-jump="pitidos" data-brand="${slug}">Ver ficha completa de pitidos de ${b.label} →</button>
+  </div>`;
+}
+
+function handleSearch(query){
+  const q = query.toLowerCase().trim();
+  document.getElementById('clearSearch').style.display = q ? 'flex' : 'none';
+  if(!q){
+    navTo(currentView === 'search' ? 'inicio' : currentView);
+    return;
+  }
+  document.querySelectorAll('.view').forEach(v=> v.hidden = true);
+  document.getElementById('view-search').hidden = false;
+  document.querySelectorAll('.nav-btn').forEach(b=> b.classList.remove('active'));
+  document.getElementById('searchTitle').textContent = `Resultados para "${query}"`;
+
+  const brandSlug = matchBrand(q);
+  let html = '';
+  if(brandSlug) html += renderBrandDossier(brandSlug);
+
+  const matches = searchIndex.filter(item=> item.text.includes(q) && !(brandSlug && item.section==='pitidos' && item.brand!==brandSlug));
+  if(matches.length === 0 && !brandSlug){
+    html += `<div class="no-results">Sin resultados para "${query}". Prueba con otro término, o revisa el nombre de un fabricante.</div>`;
+  } else {
+    const groups = {};
+    matches.forEach(m=>{ (groups[m.section] = groups[m.section] || []).push(m); });
+    Object.keys(groups).forEach(sec=>{
+      const items = groups[sec];
+      html += `<div class="result-group"><h3>${items[0].label} <span class="n">${items.length}</span></h3>`;
+      items.forEach(it=>{
+        html += `<div class="result-card" data-jump="${sec}"><h4>${it.title}</h4><p>${it.snippet}</p></div>`;
+      });
+      html += `</div>`;
+    });
+  }
+  document.getElementById('searchResults').innerHTML = html;
+
+  document.querySelectorAll('#searchResults [data-jump]').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      const view = el.dataset.jump;
+      clearSearch();
+      navTo(view);
+      if(el.dataset.brand && view === 'pitidos') activateBeepTab('beep-'+el.dataset.brand);
+    });
+  });
+}
+
+function clearSearch(){
+  document.getElementById('globalSearch').value = '';
+  document.getElementById('clearSearch').style.display = 'none';
+  navTo('inicio');
+}
+
+// ===================== INIT =====================
+window.addEventListener('DOMContentLoaded', ()=>{
+  renderSidebar();
+  renderBrandChips();
+  renderDashboard();
+  renderComandos();
+  renderBios();
+  renderPitidos();
+  renderHardware();
+  renderDatos();
+  renderClonado();
+  initRamDecoder();
+  initImcCalc();
+  buildSearchIndex();
+
+  document.getElementById('globalSearch').addEventListener('input', e=> handleSearch(e.target.value));
+
+  navTo('inicio');
+});
+</script>
+</body>
+</html>
